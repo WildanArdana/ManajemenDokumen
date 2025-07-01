@@ -19,14 +19,15 @@ class ProjectController extends Controller
 
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
+            // Memastikan pencarian lebih aman dan tidak error jika relasi tidak ada
             $query->where(function($q) use ($search) {
                 $q->where('name', 'like', '%' . $search . '%')
                   ->orWhere('description', 'like', '%' . $search . '%')
                   ->orWhereHas('subSystems', function($sq) use ($search) {
-                      $sq->where('name', 'like', '%' . $search . '%');
-                  })
-                  ->orWhereHas('subSystems.sites', function($ssq) use ($search) {
-                      $ssq->where('name', 'like', '%' . $search . '%');
+                      $sq->where('name', 'like', '%' . $search . '%')
+                         ->orWhereHas('sites', function($ssq) use ($search) {
+                             $ssq->where('name', 'like', '%' . $search . '%');
+                         });
                   });
             });
         }
@@ -34,14 +35,22 @@ class ProjectController extends Controller
         $sortColumn = $request->get('sort', 'name');
         $sortDirection = $request->get('direction', 'asc');
 
-        if (!in_array($sortColumn, ['name', 'start_date', 'end_date'])) {
+        // Validasi kolom pengurutan
+        $validSortColumns = ['name', 'start_date', 'end_date'];
+        if (!in_array($sortColumn, $validSortColumns)) {
             $sortColumn = 'name';
         }
         if (!in_array($sortDirection, ['asc', 'desc'])) {
             $sortDirection = 'asc';
         }
 
-        $query->orderBy($sortColumn, $sortDirection);
+        // Mengurutkan dengan aman, menempatkan nilai NULL di akhir
+        if ($sortColumn === 'start_date' || $sortColumn === 'end_date') {
+            $query->orderByRaw("ISNULL($sortColumn) $sortDirection, $sortColumn $sortDirection");
+        } else {
+            $query->orderBy($sortColumn, $sortDirection);
+        }
+
 
         $projects = $query->with('subSystems.sites')->get();
 
@@ -99,7 +108,11 @@ class ProjectController extends Controller
 
         $project->update($request->all());
 
-        $project->assignedUsers()->sync($request->assigned_engineers);
+        if ($request->has('assigned_engineers')) {
+            $project->assignedUsers()->sync($request->assigned_engineers);
+        } else {
+            $project->assignedUsers()->sync([]);
+        }
 
         return redirect()->route('projects.index')->with('success', 'Project updated successfully.');
     }
