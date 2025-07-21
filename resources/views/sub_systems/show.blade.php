@@ -22,6 +22,7 @@
 
                     @if(Auth::user()->isAdmin())
                         <h4 class="text-lg font-medium text-gray-900 mb-4">Tambah Site Baru</h4>
+                        {{-- Memastikan action dan method pada form sudah benar --}}
                         <form action="{{ route('sites.store', $subSystem) }}" method="POST" class="mb-6">
                             @csrf
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

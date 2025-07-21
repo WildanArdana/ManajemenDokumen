@@ -39,6 +39,13 @@
                 </a>
             @endif
 
+            {{-- Sesuai permintaan, tautan ke halaman registrasi telah dikomentari
+                 agar tidak muncul di halaman login.
+            @if (Route::has('register'))
+                <a href="{{ route('register') }}" class="ms-4 underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">{{ __('Register') }}</a>
+            @endif
+            --}}
+
             <x-primary-button class="ms-3">
                 {{ __('Log in') }}
             </x-primary-button>

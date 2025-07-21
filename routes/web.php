@@ -41,6 +41,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('projects', [ProjectController::class, 'index'])->name('projects.index');
     Route::get('projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
+    
+    Route::get('projects/{project}/completion-report', [ProjectController::class, 'completionReport'])->name('projects.completion_report');
 
     Route::post('projects/{project}/sub-systems', [SubSystemController::class, 'store'])->name('sub_systems.store')->middleware('admin');
     Route::get('sub-systems/{subSystem}', [SubSystemController::class, 'show'])->name('sub_systems.show');
@@ -52,6 +54,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('sites/{site}', [SiteController::class, 'show'])->name('sites.show');
 
+    // Site Admin Actions
     Route::middleware('admin')->group(function () {
         Route::post('sub-systems/{subSystem}/sites', [SiteController::class, 'store'])->name('sites.store');
         Route::get('sites/{site}/edit', [SiteController::class, 'edit'])->name('sites.edit');

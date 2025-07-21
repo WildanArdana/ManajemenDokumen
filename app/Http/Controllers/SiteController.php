@@ -14,17 +14,21 @@ class SiteController extends Controller
 {
     use AuthorizesRequests;
 
-    public function store(Request $request, SubSystem $subSystem)
+    /**
+     * Menyimpan Site baru ke storage.
+     * Hanya admin yang bisa melakukan ini.
+     */
+    public function store(Request $request, SubSystem $subSystem) // Pastikan parameter adalah SubSystem
     {
-        $this->authorize('manage', Site::class);
+        $this->authorize('manage', Site::class); // Menggunakan SitePolicy@manage, ini seharusnya mengizinkan admin
         $request->validate([
             'name' => 'required|string|max:255',
             'address' => 'nullable|string',
         ]);
 
-        $subSystem->sites()->create($request->all());
+        $subSystem->sites()->create($request->all()); // Pastikan ini memanggil relasi dari SubSystem
 
-        return redirect()->route('sub_systems.show', $subSystem)->with('success', 'Site added successfully.');
+        return redirect()->route('sub_systems.show', $subSystem)->with('success', 'Site berhasil ditambahkan.');
     }
 
     public function show(Site $site)

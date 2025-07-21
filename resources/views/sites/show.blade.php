@@ -15,6 +15,25 @@
                     <p class="text-gray-700"><strong>Nama Site:</strong> {{ $site->name }}</p>
                     <p class="text-gray-700"><strong>Alamat:</strong> {{ $site->address }}</p>
                     <p class="text-lg font-bold mt-4">Progress: {{ $percentage }}%</p>
+
+                    {{-- Menambahkan informasi status dokumen dan deadline --}}
+                    <p class="text-md font-bold mt-2">Status Dokumen Wajib:
+                        @if($site->allRequiredFilesUploaded())
+                            <span class="text-green-600">LENGKAP</span>
+                        @else
+                            <span class="text-red-600">BELUM LENGKAP</span>
+                        @endif
+                    </p>
+                    <p class="text-md font-bold mt-1">Status Deadline:
+                        @if($site->deadline_status == 'ontime')
+                            <span class="text-green-600">Sesuai Jadwal</span>
+                        @elseif($site->deadline_status == 'overdue')
+                            <span class="text-red-600">TERLAMBAT ({{ $site->days_overdue }} hari)</span>
+                        @else
+                            <span class="text-gray-600">Tidak ada Deadline Proyek</span>
+                        @endif
+                    </p>
+                    {{-- Akhir bagian baru --}}
                 </div>
             </div>
 

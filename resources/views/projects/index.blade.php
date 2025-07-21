@@ -10,7 +10,11 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     <div class="flex flex-wrap justify-between items-center mb-4 gap-2">
-                        <a href="{{ route('projects.create') }}" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Tambah Proyek Baru</a>
+                        {{-- Tombol "Tambah Proyek Baru" hanya akan ditampilkan jika pengguna yang login adalah admin --}}
+                        @if(Auth::user()->isAdmin())
+                            <a href="{{ route('projects.create') }}" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Tambah Proyek Baru</a>
+                        @endif
+                        
                         {{-- Form Pencarian dan Pengurutan --}}
                         <form method="GET" action="{{ route('projects.index') }}" class="flex flex-wrap items-center gap-2 flex-grow">
                             <x-text-input type="text" name="search" placeholder="Cari proyek..." value="{{ request('search') }}" class="w-full md:w-auto flex-grow" />
@@ -47,13 +51,18 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $project->end_date ? \Carbon\Carbon::parse($project->end_date)->format('d M Y') : '-' }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <a href="{{ route('projects.show', $project) }}" class="text-indigo-600 hover:text-indigo-900 mr-2">Lihat SubSystem</a>
-                                        <a href="{{ route('projects.edit', $project) }}" class="text-blue-600 hover:text-blue-900 mr-2">Edit</a>
-                                        <a href="{{ route('projects.files.index', $project) }}" class="text-green-600 hover:text-green-900 mr-2">File</a>
-                                        <form action="{{ route('projects.destroy', $project) }}" method="POST" class="inline-block" onsubmit="return confirm('Apakah Anda yakin?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:text-red-900">Hapus</button>
-                                        </form>
+                                        {{-- Tombol "Detail Laporan" tampil jika Admin ATAU project sudah lewat deadline --}}
+                                        @if(Auth::user()->isAdmin() || ($project->end_date && \Carbon\Carbon::now()->isAfter(\Carbon\Carbon::parse($project->end_date))))
+                                            <a href="{{ route('projects.completion_report', $project) }}" class="text-purple-600 hover:text-purple-900 mr-2">Detail Laporan</a>
+                                        @endif
+                                        @if(Auth::user()->isAdmin()) {{-- Tombol Edit, Hapus hanya tampil jika user adalah Admin --}}
+                                            <a href="{{ route('projects.edit', $project) }}" class="text-blue-600 hover:text-blue-900 mr-2">Edit</a>
+                                            <form action="{{ route('projects.destroy', $project) }}" method="POST" class="inline-block" onsubmit="return confirm('Apakah Anda yakin?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-red-600 hover:text-red-900">Hapus</button>
+                                            </form>
+                                        @endif
                                     </td>
                                 </tr>
                             @empty
